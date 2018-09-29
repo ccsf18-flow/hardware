@@ -83,6 +83,8 @@ module side_holes() {
     }
 }
 
+// Flip everything upside down
+scale([1, 1, -1])
 difference() {
     translate([0, 0, module_height / 2]) {
         cube([module_size, module_size, module_height], true);
