@@ -1,10 +1,5 @@
 // Units are mm
-tube_dia = 6.3;
-led_dia = 11;
-led_h = 3;
-wire_dia = 3;
-pad_spacing_x = 2;
-pad_spacing_y = 4;
+include <../defs.scad>
 
 module_thickness = 5;
 module_size = 40;
@@ -49,8 +44,8 @@ module extrude_path(path) {
 }
 
 module wire_profile() {
-    translate([-pad_spacing_x, -pad_spacing_y/2, 0]) 
-    rect_array(pad_spacing_x, pad_spacing_y, 3, 2) {
+    translate([-led_pad_spacing_x, -led_pad_spacing_y/2, 0]) 
+    rect_array(led_pad_spacing_x, led_pad_spacing_y, 3, 2) {
         circle(d=wire_dia);
     };
 }
@@ -59,8 +54,8 @@ module led_cutout() {
     rotate([0, 180, 0]) {
         cylinder(d=led_dia, h = led_h);
         
-        translate([-pad_spacing_x, -pad_spacing_y/2, 0]) 
-        rect_array(pad_spacing_x, pad_spacing_y, 3, 2) {
+        translate([-led_pad_spacing_x, -led_pad_spacing_y/2, 0]) 
+        rect_array(led_pad_spacing_x, led_pad_spacing_y, 3, 2) {
             cylinder(d=wire_dia, h = module_height+F);
         };
     }
