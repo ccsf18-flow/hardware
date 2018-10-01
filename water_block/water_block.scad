@@ -77,9 +77,11 @@ module outlet_holder() {
             translate([0, stem_center, stem_top])
             rotate([0, 180, 180]) // Rotate it into correct orientation
             g90s();
+
+            // Alignment pins
+            #translate([0, -10, -9])
+            cylinder(d=5, h=20);
         }
-
-
     }
 }
 
@@ -87,9 +89,22 @@ module all_outlets() {
     union() {
         for (i = [1:n_pipe]) {
             translate([(i-1) * pipe_spacing, 0, 0])
-            %outlet_holder();
+            outlet_holder();
         }
     }
 }
 
-all_outlets();
+SELECTION = 2;
+
+intersection() {
+     all_outlets();
+
+     if (SELECTION == 1) {
+          translate([-pipe_spacing/2, 0, 0])
+               cube([pipe_spacing*n_pipe, 4 + servo_body_depth - 3, base_height]);
+     }
+     if (SELECTION == 2) {
+          translate([-pipe_spacing/2, 0, base_height])
+               cube([pipe_spacing*n_pipe, 4 + servo_body_depth - 3, top_side_height]);
+     }
+}

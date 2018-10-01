@@ -1,6 +1,8 @@
 STL = \
   module/module.stl \
-  water_block/water_block.stl
+  water_block/water_block.stl \
+  water_block/base.stl \
+  water_block/top.stl \
 
 all : $(STL) gcode
 
