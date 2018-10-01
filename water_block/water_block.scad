@@ -4,7 +4,7 @@ include <../servo.scad>
 
 F = 0.01;
 
-pipe_spacing = 20;
+pipe_spacing = 18.333;
 n_pipe = 4;
 base_height = 10;
 block_depth = 30;
