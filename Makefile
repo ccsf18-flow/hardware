@@ -2,7 +2,8 @@ STL = \
   module/module.stl \
   water_block/base.stl \
   water_block/top.stl \
-  tube_parts/size_converter.stl
+  tube_parts/variable_flow_cap.stl \
+  tube_parts/variable_flow.stl
 
 all : $(STL) gcode
 
