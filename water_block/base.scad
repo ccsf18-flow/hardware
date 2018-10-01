@@ -1,3 +1,3 @@
-include <water_block.scad>
+use <water_block.scad>
 
-SELECTION=1;
+select_segment(1);

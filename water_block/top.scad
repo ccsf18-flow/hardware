@@ -1,3 +1,4 @@
-include <water_block.scad>
+use <water_block.scad>
 
-SELECTION=2;
+rotate([90, 0, 0])
+select_segment(2);

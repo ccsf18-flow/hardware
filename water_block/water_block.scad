@@ -94,17 +94,19 @@ module all_outlets() {
     }
 }
 
-SELECTION = 2;
+module select_segment(segment) {
+    intersection() {
+         all_outlets();
 
-intersection() {
-     all_outlets();
-
-     if (SELECTION == 1) {
-          translate([-pipe_spacing/2, 0, 0])
-               cube([pipe_spacing*n_pipe, 4 + servo_body_depth - 3, base_height]);
-     }
-     if (SELECTION == 2) {
-          translate([-pipe_spacing/2, 0, base_height])
-               cube([pipe_spacing*n_pipe, 4 + servo_body_depth - 3, top_side_height]);
-     }
+         if (segment == 1) {
+              translate([-pipe_spacing/2, 0, 0])
+                   cube([pipe_spacing*n_pipe, 4 + servo_body_depth - 3, base_height]);
+         }
+         if (segment == 2) {
+              translate([-pipe_spacing/2, 0, base_height])
+                   cube([pipe_spacing*n_pipe, 4 + servo_body_depth - 3, top_side_height]);
+         }
+    }
 }
+
+all_outlets();
