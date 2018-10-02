@@ -28,7 +28,7 @@ include slice_defs.mk
 
 include slice.mk
 
-$(call GCODE_NAME_FOR_STL,tube_parts/variable_flow.stl): PROFILE=$(BASE_PROFILE)_support
+$(call GCODE_NAME_FOR_STL,tube_parts/variable_flow.stl): PROFILE=coarse5_support
 
 .PHONY: all stl
 

@@ -75,5 +75,6 @@ module body() {
      }
 }
 
+scale([1, 1, -1])
 body();
 

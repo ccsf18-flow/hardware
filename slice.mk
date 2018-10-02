@@ -3,12 +3,12 @@
 gcode: ${GCODE}
 
 define GCODE_RULE
-$(call GCODE_NAME_FOR_STL,$(1)): $(1)
+$(call GCODE_NAME_FOR_STL,$(1)): $(1) slic3r_profiles/filament/$${FILAMENT} Makefile
 	@mkdir -p $$(dir $$(@))
 	@echo Slicing: $${<} with profile $${PROFILE}
 	@slic3r-prusa3d --print-center=$${PRINT_CENTER} \
 	  --nozzle-diameter=$${NOZZLE} \
-	  --threads=$${THREADS} \
+	  --threads=${THREADS} \
 	  --load=slic3r_profiles/filament/$${FILAMENT} \
 	  --load=slic3r_profiles/print/$${PROFILE} \
 	  --load=slic3r_profiles/printer/$${PRINTER} \
