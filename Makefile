@@ -1,15 +1,15 @@
-STL = \
+STLS = \
   module/module.stl \
   water_block/base.stl \
   water_block/top.stl \
   tube_parts/variable_flow_cap.stl \
   tube_parts/variable_flow.stl
 
-all : $(STL) gcode
+all : $(STLS) gcode
 
-stl : $(STL)
+stl : $(STLS)
 
-$(STL) : defs.scad
+$(STLS) : defs.scad
 
 water_block/water_block.scad :: defs.scad servo.scad
 
@@ -24,8 +24,11 @@ module/module.scad :: defs.scad
 %.stl: %.scad
 	openscad -o $@ $<
 
+include slice_defs.mk
 
 include slice.mk
+
+$(call GCODE_NAME_FOR_STL,tube_parts/variable_flow.stl): PROFILE=$(BASE_PROFILE)_support
 
 .PHONY: all stl
 
