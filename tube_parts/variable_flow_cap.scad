@@ -3,8 +3,11 @@ include <pipe.scad>
 include <variable_flow_defs.scad>
 
 difference() {
-     cylinder(d=large_min_od * 1.2, h = thread_length + 10);
+     cylinder(d=thread_dia + 3, h = thread_length + 10);
 
      translate([0, 0, -F])
-     metric_thread(large_min_od + 0.615 * threads_per_unit, threads_per_unit, thread_length);
+     metric_thread(thread_dia,
+                   threads_per_unit,
+                   thread_length,
+                   internal=true);
 }
