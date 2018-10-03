@@ -14,11 +14,11 @@ small_spacing = 2;
 small_count = 3;
 small_extension = 5;
 
-module small_pipe(l) {
+module small_pipe(l, center = false) {
      difference() {
-          cylinder(d=small_min_od, h=l);
-          translate([0, 0, -F/2])
-               cylinder(d=small_id, h=l+F);
+          cylinder(d=small_min_od, h=l, center=center);
+          translate([0, 0, center ? 0 : -F/2])
+               cylinder(d=small_id, h=l+F, center = center);
      }
 }
 
