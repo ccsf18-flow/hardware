@@ -7,16 +7,16 @@ F = 0.01;
 pipe_spacing = 13.71 + 5;
 n_pipe = 4;
 base_height = 10;
-block_depth = 30;
-top_depth = 40;
+block_depth = 25;
+top_depth = 25;
 valve_body_length = 17;
 valve_body_hang = 1.3;
-valve_body_dia = 8;
+valve_body_dia = 9;
 body_back_to_stem_t = 10;
 stem_dia = 5;
 body_back_to_stem_c = body_back_to_stem_t + (stem_dia / 2);
-stem_top_to_valve = 11;
-stem_height = 23;
+stem_top_to_valve = 7.5;
+stem_height = 22.5;
 stem_center = body_back_to_stem_c - valve_body_hang - tube_dia / 2;
 stem_top = stem_top_to_valve + (valve_body_dia) / 2;
 handle_rad = 13;
@@ -44,13 +44,15 @@ module outlet() {
     cylinder(d = stem_dia, h=stem_height);
 
     // Handle sweep
-    intersection() {
+    !intersection() {
+        // Start with a cylinder
         translate([0
                   ,stem_center
-                  ,stem_top - 4])
-        cylinder(r = handle_rad, 8);
+                  ,stem_top - 6])
+            cylinder(r = handle_rad, 8);
 
-        translate([-50, 0, 0])
+        // We only want the right half of the cylinder, plus a bit in the middle
+        translate([-50 + stem_dia, 0, 0])
         cube([100, 100, 100], true);
     }
 }
@@ -58,7 +60,7 @@ module outlet() {
 module outlet_holder() {
     difference() {
         // Base structure
-        union() {
+        color("yellow", alpha=0.6) union() {
             // The foundation
             translate([0, block_depth / 2, base_height / 2])
             cube([pipe_spacing, block_depth, base_height], true);
@@ -89,7 +91,7 @@ module all_outlets() {
     union() {
         for (i = [1:n_pipe]) {
             translate([(i-1) * pipe_spacing, 0, 0])
-            outlet_holder();
+            !outlet_holder();
         }
     }
 }
