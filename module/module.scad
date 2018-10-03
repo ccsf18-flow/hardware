@@ -1,18 +1,11 @@
 // Units are mm
+use <../utils.scad>
 include <../defs.scad>
 
 module_thickness = 5;
 module_size = 40;
 module_height = 60;
 F = 0.01; // Fudge factor
-
-module rect_array(x_spacing, y_spacing, n, m) {
-    for (i = [0:1:n-1], j =[0:1:m - 1])  {
-        translate([i * x_spacing
-                  ,j * y_spacing])
-            children(i % ($children));
-    }
-}
 
 // Find the unitary vector with direction v. Fails if v=[0,0,0].
 function unit(v) = norm(v)>0 ? v/norm(v) : undef; 
