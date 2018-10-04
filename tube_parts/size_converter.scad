@@ -2,10 +2,36 @@
 use <../utils.scad>
 include <pipe.scad>
 
+F = 0.01;
 bridge_length = 20;
 rect_spacing = small_min_od * 2;
 
 $fn = 32;
+
+module bridge(outer) {
+     n_outputs = 8;
+     for (i = [1:n_outputs]) {
+          rotate([0, 0, (360 / n_outputs) * i])
+               hull () {
+               translate([rect_spacing / 2, rect_spacing / 2, bridge_length / 2 - 2])
+                    cylinder(d=outer?small_min_od:small_id, h=(outer ? 2 : (2 + F)));
+               translate([0, 0, -bridge_length / 2 - (outer ? 0 : F)])
+                    cylinder(d=outer?large_max_od:large_id, h=2);
+          }
+     }
+
+     if (!outer) {
+          echo(rect_spacing - small_max_od - 0.5);
+          cylinder(r = rect_spacing - small_max_od - 0.5, 100);
+
+          extra_hole_dia = 6;
+
+          rotate([0, 90, 0])
+               cylinder(d = extra_hole_dia, h = 30, center=true);
+          rotate([0, 90, 90])
+               cylinder(d = extra_hole_dia, h = 30, center=true);
+     }
+}
 
 module body() {
      translate([-rect_spacing / 2, -rect_spacing / 2, bridge_length / 2])
@@ -21,36 +47,10 @@ module body() {
 
      // translate([rect_spacing / 2, 0, -bridge_length / 2])
      difference() {
-          for (i = [1:4]) {
-               rotate([0, 0, 90 * i])
-                    hull () {
-                    translate([rect_spacing / 2, rect_spacing / 2, bridge_length / 2 - 2])
-                         cylinder(d=small_min_od, h=2);
-                    translate([0, 0, -bridge_length / 2])
-                         cylinder(d=large_max_od, h=2);
-               }
-          }
-          for (i = [1:4]) {
-               rotate([0, 0, 90 * i])
-                    hull () {
-                    translate([rect_spacing / 2, rect_spacing / 2, bridge_length / 2 - 2 + F])
-                         cylinder(d=small_id, h=2);
-                    translate([0, 0, -bridge_length / 2 - F])
-                         cylinder(d=large_id, h=2);
-               }
-          }
+          bridge(true);
+          bridge(false);
      }
 }
 
+// rotate([0, 180, 0])
 body();
-
-/*
-difference() {
-     cylinder(d1=large_max_od, d2=small_max_od, h=bridge_length, center=true);
-     cylinder(d1=large_id, d2=small_id, h=bridge_length+F, center=true);
-}
-
-translate([0, 0, bridge_length / 2])
-small_side();
-
-*/
