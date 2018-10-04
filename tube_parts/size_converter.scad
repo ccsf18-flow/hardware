@@ -23,13 +23,6 @@ module bridge(outer) {
      if (!outer) {
           echo(rect_spacing - small_max_od - 0.5);
           cylinder(r = rect_spacing - small_max_od - 0.5, 100);
-
-          extra_hole_dia = 6;
-
-          rotate([0, 90, 0])
-               cylinder(d = extra_hole_dia, h = 30, center=true);
-          rotate([0, 90, 90])
-               cylinder(d = extra_hole_dia, h = 30, center=true);
      }
 }
 
