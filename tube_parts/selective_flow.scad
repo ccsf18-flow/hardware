@@ -1,12 +1,10 @@
 // Units are mm
+include <../servo.scad>
 include <pipe.scad>
+include <sluice_defs.scad>
 
-unit_width = 30;
-sluice_thickness = 2;
-sluice_width = unit_width * 4 / 5;
-sluice_height = sluice_width;
-wall_thickness = 5;
-sluice_retain = 2;
+small_hose_clamp_id = 6;
+small_hose_clamp_inset = 1;
 
 module outlet_geometry() {
      for (i = [0:3]) {
@@ -16,15 +14,44 @@ module outlet_geometry() {
      }
 }
 
+module small_hose_clamp(h, center=false) {
+     difference() {
+          // The main body
+          cylinder(d=small_hose_clamp_id+wall_thickness, h=h, center=center);
+
+          // Through-hole
+          translate([0, 0, center?0:-F])
+               cylinder(d = small_hose_clamp_id - small_hose_clamp_inset, h=h + 2 * F, center=center);
+
+          // Reliefs
+          translate([0, 0, center?(-h/4):0])union() {
+               translate([0, 0, (h + small_hose_clamp_inset) / 2])
+               cylinder(d=small_hose_clamp_id, h=h/2 + F, center=center);
+
+               translate([0, 0, (-small_hose_clamp_inset) / 2])
+               cylinder(d=small_hose_clamp_id, h=h/2 + F, center=center);
+          }
+     }
+}
+
 module valve_body() {
      difference() {
           // Main body
+          sluice_x_offset = large_id / 4 + wall_thickness / 2;
           union() {
+               // Primary body geometry
                cube([unit_width, unit_width, unit_width], center=true);
 
+               // Servo mount
+               servo_mount_width = 10;
+               translate([-(unit_width - servo_mount_width) / 2, 0, (unit_width + horn_cor_offset) / 2])
+                    cube([servo_mount_width, unit_width, horn_cor_offset + servo_width / 2], center=true);
+
+
+               // Outlet positive features
                outlet_geometry() {
                     $fs=0.1;
-                    small_side();
+                    small_hose_clamp(10);
                }
           }
 
@@ -36,7 +63,7 @@ module valve_body() {
                cylinder(d=large_id, h=2*sluice_width, center=true);
 
                // Interface with The sluice hole
-               translate([large_id / 4 + wall_thickness / 2, 0, 0])
+               translate([sluice_x_offset, 0, 0])
                cube([large_id / 2 + wall_thickness, unit_width - 2 * wall_thickness, large_id], center=true);
 
                // The 4 outlets
@@ -49,6 +76,11 @@ module valve_body() {
           // Sluice gate hole
           translate([unit_width / 2 - wall_thickness - sluice_thickness / 2, 0, wall_thickness])
                cube([sluice_thickness, sluice_width + F, sluice_height + F], center=true);
+
+          // Servo mounting stuff
+          translate([sluice_x_offset, 0, unit_width / 2 + horn_cor_offset])
+               rotate([0, 90, 0])
+               #g90s();
      }
 }
 
