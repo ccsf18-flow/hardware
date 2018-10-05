@@ -60,11 +60,6 @@ module valve_body() {
                // Small patch for the hole in the middle of the outlets
                translate([unit_width / 2 + 5, 0, 0])
                     cube([10, 4, 4], center=true);
-
-               // Inlet for testing
-               translate([0, unit_width / 2, 0])
-                    rotate([270, 0, 0])
-                    large_side();
           }
 
           //Flow paths
@@ -100,6 +95,11 @@ module valve_body() {
 !intersection() {
     union() {
           valve_body();
+          // Inlet for testing
+          translate([0, unit_width / 2, 0])
+               rotate([270, 0, 0])
+               large_side();
+
           translate([sluice_x_offset + (sluice_thickness - sluice_clearance) * 2, 0, 30])
           rotate([270, 0, 90])
           translate([-(sluice_width - sluice_clearance) / 2, 0, 0])
