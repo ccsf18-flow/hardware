@@ -2,9 +2,8 @@ STLS = \
   module/module.stl \
   water_block/base.stl \
   water_block/top.stl \
-  tube_parts/size_converter.stl \
-  tube_parts/variable_flow_cap.stl \
-  tube_parts/variable_flow.stl
+  tube_parts/sluice_gate.stl \
+  tube_parts/selective_flow.stl
 
 all : $(STLS) gcode
 
@@ -29,7 +28,7 @@ include slice_defs.mk
 
 include slice.mk
 
-$(call GCODE_NAME_FOR_STL,tube_parts/variable_flow.stl): PROFILE=coarse5_support
+# $(call GCODE_NAME_FOR_STL,tube_parts/variable_flow.stl): PROFILE=coarse5_support
 
 .PHONY: all stl
 
