@@ -8,33 +8,11 @@ small_hose_clamp_inset = 0.5;
 sluice_x_offset = large_id / 4 + wall_thickness / 2;
 
 module outlet_geometry() {
-     for (i = [0:1], j = [0:1]) {
-          // translate([unit_width / 2, ((i % 2) - 0.5) * small_max_od * 1.1, (i - 1) * (small_max_od * 1) - 3])
-          translate([unit_width / 2,
-                     (i - 0.5) * (small_hose_clamp_id + wall_thickness / 2),
-                     (j - 0.5) * (small_hose_clamp_id + wall_thickness / 2)])
-               rotate([0, 90, 0])
+     for (i = [0:3]) {
+          rotate([0, 0, (i / 3 - 0.5) * 120])
+               translate([unit_width * 0.3, 0, -unit_width / 2])
+               rotate([0, 180, 0])
                children();
-     }
-}
-
-module small_hose_clamp(h, center=false) {
-     difference() {
-          // The main body
-          cylinder(d=small_hose_clamp_id+wall_thickness, h=h, center=center);
-
-          // Through-hole
-          translate([0, 0, center?0:-F])
-               cylinder(d = small_hose_clamp_id - small_hose_clamp_inset, h=h + 2 * F, center=center);
-
-          // Reliefs
-          translate([0, 0, center?(-h/4):0])union() {
-               translate([0, 0, (h + small_hose_clamp_inset) / 2])
-               cylinder(d=small_hose_clamp_id, h=h/2 + F, center=center);
-
-               translate([0, 0, (-small_hose_clamp_inset) / 2])
-               cylinder(d=small_hose_clamp_id, h=h/2 + F, center=center);
-          }
      }
 }
 
@@ -42,24 +20,21 @@ module valve_body() {
      difference() {
           // Main body
           union() {
-               // Primary body geometry
-               cube([unit_width, unit_width, unit_width], center=true);
-
-               // Servo mount
-               servo_mount_width = 9;
-               translate([-(unit_width - servo_mount_width) / 2, 0, (unit_width + servo_body_depth / 2) / 2])
-                    cube([servo_mount_width, unit_width, horn_cor_offset + servo_body_depth / 4], center=true);
+              hull() {
+                  // Primary body geometry
+                  cube([unit_width, unit_width, unit_width], center=true);
 
 
-               // Outlet positive features
-               outlet_geometry() {
-                    $fs=0.1;
-                    small_hose_clamp(10);
-               }
+                  // Outlet positive features
+                  outlet_geometry() {
+                        cylinder(r=small_hose_clamp_id, h = wall_thickness);
+                  }
+              }
 
-               // Small patch for the hole in the middle of the outlets
-               translate([unit_width / 2 + 5, 0, 0])
-                    cube([10, 4, 4], center=true);
+              // Servo mount
+              servo_mount_width = 15;
+              translate([0, 0, (horn_cor_offset + unit_width + servo_horn_height) / 2])
+                   cube([servo_mount_width, 20, servo_horn_height + horn_cor_offset], center=true);
           }
 
           //Flow paths
@@ -69,30 +44,53 @@ module valve_body() {
                rotate([0, 90, 90])
                cylinder(d=large_id, h=2*sluice_width, center=true);
 
+               cube(unit_width - 2 * wall_thickness, center=true);
+
                // Interface with The sluice hole
                translate([sluice_x_offset, 0, 0])
                     cube([large_id / 2 + wall_thickness, unit_width - 2 * wall_thickness, large_id], center=true);
 
                // The 4 outlets
                #outlet_geometry() {
-                    translate([0, 0, -wall_thickness])
-                    cylinder(d=small_hose_clamp_id, h=6);
+                    translate([0, 0, -wall_thickness - F])
+                    cylinder(d=small_hose_clamp_id, h=20);
+               }
+
+               translate([0, 0, -unit_width / 2 + wall_thickness - oring_dia + F])
+               difference() {
+                    $fs=0.01;
+                    dia = unit_width - 2 * wall_thickness;
+                    cylinder(d=dia, h = oring_dia);
+                    translate([0, 0, -F])
+                         cylinder(d=dia-oring_dia*2, h = oring_dia + 2 * F);
                }
           }
 
-          // Sluice gate hole
-          color("red")
-               translate([unit_width / 2 - wall_thickness - sluice_thickness / 2, 0, (unit_width - large_id) / 2 - 3])
-               cube([sluice_thickness, sluice_width + F, sluice_height + F], center=true);
-
           // Servo mounting stuff
-          translate([sluice_x_offset - 1, 0, unit_width / 2 + horn_cor_offset])
-               rotate([90, 0, 90])
+          translate([0, 0, horn_cor_offset + unit_width / 2])
+               rotate([0, 180, 0])
                #g90s($fs=0.1);
+
+          cylinder(d=stem_dia, h=100);
      }
 }
 
-!intersection() {
+module top_cut() {
+    translate([0, 0, unit_width / 2 - wall_thickness - F])
+        union() {
+        rotate([0, 0, 45])
+              cylinder(d1=(unit_width - 2 * wall_thickness) * sqrt(2),
+                      d2=(unit_width+2*F) * sqrt(2),
+                      h=wall_thickness + 2*F,
+                      $fn=4);
+        translate([-unit_width - F, -unit_width - F, wall_thickness])
+              cube([unit_width * 2, unit_width * 2, 100]);
+    }
+}
+
+RENDER_COMPONENT=1;
+
+intersection() {
     union() {
           valve_body();
           // Inlet for testing
@@ -100,14 +98,22 @@ module valve_body() {
                rotate([270, 0, 0])
                large_side();
 
-          translate([sluice_x_offset + (sluice_thickness - sluice_clearance) * 2, 0, 30])
-          rotate([270, 0, 90])
-          translate([-(sluice_width - sluice_clearance) / 2, 0, 0])
-          %sluice_gate();
+          %translate([0, 0, -unit_width / 2 + wall_thickness])
+                rotate([0, 0, 0])
+          sluice_gate();
     }
 
-     // translate([0, 50, 0])
-     // cube([100, 100, 100], center=true);
+    if (RENDER_COMPONENT == 1) {
+         translate([0, -50, 0])
+              cube([100, 100, 100], center=true);
+    } else if (RENDER_COMPONENT == 2) {
+         top_cut();
+    } else if (RENDER_COMPONENT == 3) {
+         difference() {
+              cube([300, 300, 300], center=true);
+              top_cut();
+         }
+    }
 }
 
-include <sluice_gate.scad>
+use <sluice_gate.scad>

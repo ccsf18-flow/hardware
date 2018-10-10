@@ -3,7 +3,8 @@ STLS = \
   water_block/base.stl \
   water_block/top.stl \
   tube_parts/sluice_gate.stl \
-  tube_parts/selective_flow.stl
+  tube_parts/selective_flow_top.stl \
+  tube_parts/selective_flow_bottom.stl
 
 all : $(STLS) gcode
 
