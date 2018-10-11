@@ -15,7 +15,7 @@ module sluice_gate() {
                     difference() {
                         cylinder(d=stem_dia - sluice_clearance, h=cup_height);
                         translate([0, 0, 1])
-                        cylinder(d=4.7, h=cup_height+0.01);
+                        cylinder(d=4.9, h=cup_height+0.01);
                     }
           }
 
