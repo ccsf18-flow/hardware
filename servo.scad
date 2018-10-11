@@ -1,4 +1,4 @@
-servo_width = 12;
+servo_width = 12.2;
 servo_body_depth = 22.5;
 servo_body_height = 22.5;
 servo_ear_size = 5;
