@@ -1,101 +1,122 @@
 // Units are mm
 use <../utils.scad>
 include <../defs.scad>
+use <../tube_parts/selective_flow.scad>
 
-module_thickness = 5;
-module_size = 40;
-module_height = 60;
-F = 0.01; // Fudge factor
+tube_dia = (5/8) * 25.4; // 1 inch in mm
+module_width = 6 * tube_dia;
+base_height = 0.5 * 25.4;
+top_height = tube_dia;
+window_height = module_width - (base_height + top_height);
+led_height = 3;
+window_thickness = 0.125 * 25.4; // 1/8" in mm
+window_instep = window_thickness;
+pump_min_height = 3.5 * 25.4;
+F = 0.01;
 
-// Find the unitary vector with direction v. Fails if v=[0,0,0].
-function unit(v) = norm(v)>0 ? v/norm(v) : undef; 
-// Find the transpose of a rectangular matrix
-function transpose(m) = // m is any rectangular matrix of objects
-  [ for(j=[0:len(m[0])-1]) [ for(i=[0:len(m)-1]) m[i][j] ] ];
-// The identity matrix with dimension n
-function identity(n) = [for(i=[0:n-1]) [for(j=[0:n-1]) i==j ? 1 : 0] ];
-
-function rotate_from_to(a,b) = 
-    let( axis = unit(cross(a,b)) )
-    axis*axis >= 0.99 ? 
-        transpose([unit(b), axis, cross(axis, unit(b))]) * 
-            [unit(a), axis, cross(axis, unit(a))] : 
-        identity(3);
-
-module extrude_path(path) {    
-    module line(p0, p1) {
-        v = p1-p0;
-        translate(p0)
-          multmatrix(rotate_from_to([0,0,1],v))
-            linear_extrude(norm(v) + 1) children(0);
-    }
-    
-    for (i=[1:len(path) - 1]) {
-        line(path[i - 1], path[i])
-            children(0);
+module acrylic_tube(h, fill) {
+    tube_wall_thickness = (5/8 - 1/2) / 2 * 25.4;
+    color("white", alpha=0.8) difference() {
+        cylinder(d = tube_dia, h=h);
+        if (!fill) {
+            translate([0, 0, -F])
+                cylinder(d=tube_dia - 2 * tube_wall_thickness, h = h + 2 * F);
+        }
     }
 }
 
-module wire_profile() {
-    translate([-led_pad_spacing_x, -led_pad_spacing_y/2, 0]) 
-    rect_array(led_pad_spacing_x, led_pad_spacing_y, 3, 2) {
-        circle(d=wire_dia);
-    };
+module acrylic_pattern(h, fill=false) {
+    // tube_array_frac = 0.95 / 3;
+    // translate([-module_width * (tube_array_frac / 2), -module_width * (tube_array_frac / 2)])
+    //     rect_array(module_width * tube_array_frac, module_width * tube_array_frac, 2, 2)
+        acrylic_tube(h, fill=fill);
 }
 
-module led_cutout() {
-    rotate([0, 180, 0]) {
-        cylinder(d=led_dia, h = led_h);
-        
-        translate([-led_pad_spacing_x, -led_pad_spacing_y/2, 0]) 
-        rect_array(led_pad_spacing_x, led_pad_spacing_y, 3, 2) {
-            cylinder(d=wire_dia, h = module_height+F);
-        };
+module led_pattern() {
+    num_led = 3;
+    module_frac = 0.95;
+    unit_size = module_frac * module_width / num_led;
+    n = num_led - 1;
+
+    translate([-unit_size, -unit_size, -led_height + F])
+    #rect_array(unit_size, unit_size, 3, 3)
+        led();
+}
+
+module base() {
+    foot_percent = 0.2;
+    difference() {
+        union () {
+            // Main body geometry
+            translate([0, 0, base_height / 2])
+                cube([module_width, module_width, base_height], center=true);
+
+            corner_offset = -module_width * (0.5 + -foot_percent / 2);
+            translate([corner_offset, corner_offset,  base_height + -pump_min_height / 2])
+            rect_array(module_width * (1 - foot_percent), module_width * (1 - foot_percent), 2, 2)
+                cube([module_width * foot_percent, module_width * foot_percent, pump_min_height], center=true);
+        }
+
+        union() {
+            // LEDs
+            translate([0, 0, base_height])
+                led_pattern();
+
+            // Tube through hole
+            color("red") translate([0, 0, base_height - 0.125 * 25.4])
+                acrylic_pattern(0.125 * 25.4 + F, true);
+
+            // Outlet flow path
+            translate([0, 0, base_height - 0.125 * 25.4])
+                rotate([atan2(module_width / 2 + 25.4, -base_height / 2), 0, 30])
+                cylinder(d = tube_dia - 6, h=100);
+
+            // Wall insteps
+            color("lightgreen") translate([0, 0, base_height - 0.125 * 25.4])
+            windows();
+        }
     }
 }
 
-module side_holes() {
-    wire_fac = 2.5;
-    // Translate so everything is lined up on the xy plane
-    // grows into -x, and the y axis is the baseline
-    translate([-tube_dia - 3 - (wire_fac / 2) * wire_dia
-              ,0
-              ,-module_thickness - F/2]) {
-        // tube hole
-        cylinder(d=tube_dia, h = module_thickness +F);
-        // Wire pigtail hole
-        translate([tube_dia + 3, 0, (module_thickness + F) / 2])
-            cube([wire_fac * wire_dia
-                 , wire_fac * wire_dia
-                 , module_thickness + F], true);
+module top() {
+    difference() {
+        translate([0, 0, top_height / 2])
+            cube([module_width, module_width, top_height], center=true);
+
+        rotate([0, 180, 0]) {
+            led_pattern();
+            translate([0, 0, -0.125 * 25.4])
+                acrylic_pattern(0.125 * 25.4 + F, true);
+        }
     }
 }
 
-// Flip everything upside down
-scale([1, 1, -1])
-difference() {
-    translate([0, 0, module_height / 2]) {
-        cube([module_size, module_size, module_height], true);
+module windows() {
+    window_size = module_width - 2 * window_instep;
+    echo("Window size: ", window_size / 25.4);
+    color("white", alpha=0.5) for (i = [0:3]) {
+        rotate([0, 0, 90 * i])
+            translate([(module_width - window_thickness) / 2 - window_instep, 0, window_height / 2])
+            cube([window_thickness, window_size, window_height], center=true);
     }
-    
-    // Hollow out the inside
-    translate([0, 0, (module_height - module_thickness - F) / 2])
-        cube([module_size - 2 * module_thickness
-             ,module_size - 2 * module_thickness
-             ,module_height - module_thickness + F], true);
-    
-    // Fountain outlet
-    
-    cylinder(d=tube_dia, h=100);
-    
-    // LED cutouts
-    
-    #translate([-module_size / 4, -module_size / 4, module_height+F])
-    rect_array(module_size / 2, module_size / 2, 2, 2) {
-        led_cutout();
-    }
-    
-    #translate([module_size / 2, 0, 10])
-        rotate([0, 90, 0])
-        side_holes();
 }
+
+module led() {
+    color("orange")
+        cylinder(d=11.5, h=led_height);
+
+    rotate([0, 180, 0])
+    cylinder(d=9, h=pump_min_height + F);
+}
+
+$fs = $render ? 0.25 : 0.1;
+
+base();
+
+// translate([0, 0, base_height])
+//     acrylic_pattern(window_height);
+// translate([0, 0, base_height])
+//     windows();
+
+translate([0, 0, window_height + base_height])
+   top();

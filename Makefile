@@ -1,6 +1,7 @@
 STLS = \
-  module/module.stl \
   tools/sander.stl \
+  module/bottom.stl \
+  module/top.stl \
   water_block/base.stl \
   water_block/top.stl \
   tube_parts/sluice_gate.stl \
@@ -22,6 +23,13 @@ water_block/base.scad :: water_block/water_block.scad
 	touch $@
 
 module/module.scad :: defs.scad
+	touch $@
+
+module/top.scad :: module/module.scad
+	touch $@
+
+module/bottom.scad :: module/module.scad
+	touch $@
 
 %.stl: %.scad
 	openscad -o $@ $<
