@@ -1,5 +1,6 @@
 STLS = \
   module/module.stl \
+  tools/sander.stl \
   water_block/base.stl \
   water_block/top.stl \
   tube_parts/sluice_gate.stl \
