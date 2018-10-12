@@ -1,5 +1,5 @@
-servo_width = 12.2;
-servo_body_depth = 22.5;
+servo_width = 12.4;
+servo_body_depth = 22.7;
 servo_body_height = 22.5;
 servo_ear_size = 5;
 servo_step_height = 6;
@@ -27,7 +27,7 @@ module g90s() {
         // The output shaft
         translate([servo_width / 2, servo_width / 2, servo_body_height]) {
             translate([0, servo_width/2, 0])
-                cylinder(d=6, h=servo_step_height);
+                cylinder(d=6.2, h=servo_step_height);
             cylinder(d=servo_width, h=servo_step_height);
             // This cylinder goes to the top of the horn, with screw
             cylinder(d=7, h=servo_horn_height);
