@@ -4,9 +4,9 @@ STLS = \
   module/top.stl \
   water_block/base.stl \
   water_block/top.stl \
-  tube_parts/sluice_gate.stl \
-  tube_parts/selective_flow_top.stl \
-  tube_parts/selective_flow_bottom.stl
+  tube_parts/hatch_gate.stl \
+  tube_parts/hatch_servo_gear.stl \
+  tube_parts/hatch_body.stl
 
 all : $(STLS) gcode
 
@@ -39,7 +39,8 @@ include slice_defs.mk
 include slice.mk
 
 # $(call GCODE_NAME_FOR_STL,tube_parts/variable_flow.stl): PROFILE=coarse5_support
-$(call GCODE_NAME_FOR_STL,tube_parts/selective_flow_bottom.stl): PROFILE=coarse1_support
+# $(call GCODE_NAME_FOR_STL,tube_parts/selective_flow_bottom.stl): PROFILE=coarse1_support
+$(call GCODE_NAME_FOR_STL,tube_parts/hatch_gate.stl): PROFILE=coarse1_support
 
 .PHONY: all stl
 
