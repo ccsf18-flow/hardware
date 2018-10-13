@@ -6,7 +6,7 @@ circular_pitch = 200;
 function gear_radius(x) = circular_pitch * x / 360;
 
 F = 0.01;
-C = 0.1;
+C = 0.3;
 outlet_width = 15;
 wall_thickness = 2.5;
 body_width = max(outlet_width, 26) + 2 * wall_thickness;
@@ -23,12 +23,16 @@ gear_clearance = C;
 module servo_cutout() {
      g90s($fs=0.1);
      // Keep the face clear
-     translate([0, 5.8, -5 - F])
-     cube([12.4, 34, 12], center=true);
+     translate([0, 5.8, -7.8 - F])
+         cube([12.8, 34, 12.5], center=true);
+
+     // Extra clearance for the body
+     translate([0, 3.2, -22 - F])
+         cube([12.8, 26.6, 24], center=true);
 
      // hacky wire cutout
-     translate([0, -8, -70])
-          cube([8, 4, 100], center=true);
+     translate([0, -8, -60])
+          cube([12.8, 4, 100], center=true);
 }
 
 module body() {
@@ -41,11 +45,11 @@ module body() {
           // Shaft cutout
           translate([-F, shaft_y, shaft_z])
                rotate([0, 90, 0])
-               cylinder(d=shaft_dia+4*C, h=body_width + 2*F, $fs=0.05);
+               cylinder(d=shaft_dia+2*C, h=body_width + 2*F, $fs=0.05);
 
           // Cutout so that the shaft can actuall be put in place
-          translate([-F + wall_thickness + outlet_width, shaft_y - shaft_dia/2 - 2*C, shaft_z])
-              cube([body_width - outlet_width - wall_thickness + 2 * F, shaft_dia + 4 * C, height - shaft_z + F]);
+          translate([-F + wall_thickness + outlet_width, shaft_y - shaft_dia/2 - C, shaft_z])
+              cube([body_width - outlet_width - wall_thickness + 2 * F, shaft_dia + 2 * C, height - shaft_z + F]);
 
           // Outlet cutout
           translate([wall_thickness, -F, wall_thickness + servo_height + wall_thickness])
@@ -56,6 +60,10 @@ module body() {
                cube([body_width - 2 * wall_thickness,
                      depth - shaft_y - 2 * wall_thickness,
                      outlet_height]);
+
+          // Cutout for overflow spillage
+          translate([-F, body_width - wall_thickness, shaft_z - shaft_dia])
+                cube([wall_thickness + 2 * F, outlet_width, 30]);
 
 
           // Servo cutout
@@ -69,9 +77,9 @@ module body() {
 module shaft() {
      $fs = 0.1;
      rotate([0, 90, 0]) {
-          cylinder(d=shaft_dia, h = body_width + gear_thickness + C);
+          color("orange") cylinder(d=shaft_dia, h = body_width + gear_thickness + C);
 
-          translate([0, 0, wall_thickness + C])
+          color("orange") translate([0, 0, wall_thickness + C])
                hull() {
                cylinder(d = shaft_dia, h = outlet_width - 2 * C);
 
@@ -83,7 +91,7 @@ module shaft() {
 
           rotate([0, 0, 45])translate([0, 0, body_width + C]) {
                difference() {
-                    gear(number_of_teeth=32,
+                    color("lightgreen") gear(number_of_teeth=32,
                          circular_pitch=circular_pitch,
                          gear_thickness=gear_thickness,
                          rim_thickness=gear_thickness,
