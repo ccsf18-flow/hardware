@@ -31,6 +31,15 @@ module/top.scad :: module/module.scad
 module/bottom.scad :: module/module.scad
 	touch $@
 
+tube_parts/hatch_body.scad :: tube_parts/hatch.scad
+	touch $
+
+tube_parts/hatch_gate.scad :: tube_parts/hatch.scad
+	touch $
+
+tube_parts/hatch_servo_gear.scad :: tube_parts/hatch.scad
+	touch $
+
 %.stl: %.scad
 	openscad -o $@ $<
 
@@ -41,6 +50,7 @@ include slice.mk
 # $(call GCODE_NAME_FOR_STL,tube_parts/variable_flow.stl): PROFILE=coarse5_support
 # $(call GCODE_NAME_FOR_STL,tube_parts/selective_flow_bottom.stl): PROFILE=coarse1_support
 $(call GCODE_NAME_FOR_STL,tube_parts/hatch_gate.stl): PROFILE=coarse1_support
+$(call GCODE_NAME_FOR_STL,tube_parts/hatch_body.stl): PROFILE=coarse1_internal_support
 
 .PHONY: all stl
 
