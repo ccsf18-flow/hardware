@@ -8,10 +8,11 @@ module_width = 6 * tube_dia;
 base_height = 0.5 * 25.4;
 top_height = tube_dia;
 window_height = module_width - (base_height + top_height);
-led_height = 3;
+led_height = 5;
 window_thickness = 0.125 * 25.4; // 1/8" in mm
 window_instep = window_thickness;
 pump_min_height = 3.5 * 25.4;
+wire_dia = 3;
 F = 0.01;
 
 module acrylic_tube(h, fill) {
@@ -38,9 +39,17 @@ module led_pattern() {
     unit_size = module_frac * module_width / num_led;
     n = num_led - 1;
 
-    translate([-unit_size, -unit_size, -led_height + F])
-    #rect_array(unit_size, unit_size, 3, 3)
-        led();
+    translate([-unit_size, -unit_size, -led_height + F]) {
+         for (i = [0:num_led-1]) {
+              translate([unit_size * i, 0, 0]) led();
+              translate([unit_size * i, 2 * unit_size, 0]) led();
+         }
+
+         for (i = [1:num_led - 2]) {
+              translate([0, unit_size * i, 0]) led();
+              translate([2 * unit_size, unit_size * i, 0]) led();
+         }
+    }
 }
 
 module base() {
@@ -101,12 +110,46 @@ module windows() {
     }
 }
 
-module led() {
-    color("orange")
-        cylinder(d=11.5, h=led_height);
+led_path_angle = 60;
 
-    rotate([0, 180, 0])
-    cylinder(d=9, h=pump_min_height + F);
+module led_path(h, t) {
+     cylinder(d=wire_dia, h=h + F);
+     translate([0, 0, h])
+          rotate([0, led_path_angle, 0]) {
+          sphere(d=wire_dia);
+          cylinder(d=wire_dia, h=t + F);
+     }
+}
+
+module led() {
+    led_dia = 20;
+    color("orange")
+        cylinder(d=led_dia, h=led_height + 3);
+
+    #translate([0, 0, F])
+    rotate([0, 180, 0]) {
+         rad = led_dia / 2 - wire_dia;
+         t = sin(led_path_angle) * rad;
+         rotate([0, 0, 0])
+              translate([0, rad, 0])
+              rotate([0, 0, -90])
+              led_path(h=base_height, t=t);
+         rotate([0, 0, 60])
+              translate([0, rad, 0])
+              rotate([0, 0, -90])
+              led_path(h=base_height, t=t);
+         rotate([0, 0, -60])
+              translate([0, rad, 0])
+              rotate([0, 0, -90])
+              led_path(h=base_height, t=t);
+         rotate([0, 0, 180])
+              translate([0, rad, 0])
+              rotate([0, 0, -90])
+              led_path(h=base_height, t=t);
+
+         translate([0, 0, base_height + cos(led_path_angle) * rad])
+              sphere(d=wire_dia + 4);
+    }
 }
 
 $fs = $render ? 0.25 : 0.1;
