@@ -2,6 +2,7 @@ STLS = \
   tools/sander.stl \
   module/bottom.stl \
   module/top.stl \
+  module/led_holder_test.stl \
   water_block/base.stl \
   water_block/top.stl \
   tube_parts/hatch_gate.stl \
@@ -51,6 +52,7 @@ include slice.mk
 # $(call GCODE_NAME_FOR_STL,tube_parts/selective_flow_bottom.stl): PROFILE=coarse1_support
 $(call GCODE_NAME_FOR_STL,tube_parts/hatch_gate.stl): PROFILE=coarse1_support
 $(call GCODE_NAME_FOR_STL,tube_parts/hatch_body.stl): PROFILE=coarse1_internal_support
+$(call GCODE_NAME_FOR_STL,module/led_holder_test.stl): PROFILE=coarse5
 
 .PHONY: all stl
 
