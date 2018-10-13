@@ -32,13 +32,13 @@ module/bottom.scad :: module/module.scad
 	touch $@
 
 tube_parts/hatch_body.scad :: tube_parts/hatch.scad
-	touch $
+	touch $@
 
 tube_parts/hatch_gate.scad :: tube_parts/hatch.scad
-	touch $
+	touch $@
 
 tube_parts/hatch_servo_gear.scad :: tube_parts/hatch.scad
-	touch $
+	touch $@
 
 %.stl: %.scad
 	openscad -o $@ $<
