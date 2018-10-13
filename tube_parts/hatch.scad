@@ -11,10 +11,10 @@ outlet_width = 15;
 wall_thickness = 2.5;
 body_width = max(outlet_width, 26) + 2 * wall_thickness;
 depth = body_width + 20;
-shaft_dia = 3;
+shaft_dia = 5;
 servo_height = 12.2;
 height = servo_height + (gear_radius(32) + gear_radius(8));
-shaft_y = wall_thickness + shaft_dia / 2 + 6;
+shaft_y = wall_thickness + shaft_dia / 2 + 4;
 shaft_z = height - wall_thickness - (shaft_dia / 2);
 outlet_height = height - servo_height + F - wall_thickness;
 gear_thickness = 8;
@@ -56,9 +56,11 @@ module body() {
                cube([outlet_width, shaft_y + 2 * wall_thickness, height - servo_height - wall_thickness]);
 
           // Resevoir cutout
-          translate([wall_thickness, shaft_y + wall_thickness, servo_height + 2 * wall_thickness])
+          translate([wall_thickness,
+                     shaft_y + wall_thickness + shaft_dia / 2 - 2 * F,
+                     servo_height + 2 * wall_thickness])
                cube([body_width - 2 * wall_thickness,
-                     depth - shaft_y - 2 * wall_thickness,
+                     depth - shaft_y - shaft_dia / 2 - 2 * wall_thickness,
                      outlet_height]);
 
           // Cutout for overflow spillage
