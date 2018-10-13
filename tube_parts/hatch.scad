@@ -4,6 +4,7 @@ use <../vendor/parametric_involute_gear.scad>
 
 circular_pitch = 200;
 function gear_radius(x) = circular_pitch * x / 360;
+function gear_center_dist(x, y) = (x + y) * circular_pitch / 360;
 
 F = 0.01;
 C = 0.3;
@@ -13,7 +14,7 @@ body_width = max(outlet_width, 26) + 2 * wall_thickness;
 depth = body_width + 20;
 shaft_dia = 5;
 servo_height = 12.2;
-height = servo_height + (gear_radius(32) + gear_radius(8));
+height = servo_height + (gear_center_dist(32, 8)) + 1.5;
 shaft_y = wall_thickness + shaft_dia / 2 + 4;
 shaft_z = height - wall_thickness - (shaft_dia / 2);
 outlet_height = height - servo_height + F - wall_thickness;
@@ -133,7 +134,7 @@ module shaft() {
 }
 
 module servo_gear() {
-     rotate([0, 90, 0]) {
+     rotate([360 / 16, 0, 0]) rotate([0, 90, 0]) {
           gear(number_of_teeth=8,
                circular_pitch=circular_pitch,
                gear_thickness=gear_thickness,
