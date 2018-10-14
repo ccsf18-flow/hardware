@@ -129,7 +129,7 @@ module windows() {
     }
 }
 
-led_path_angle = 60;
+led_path_angle = 30;
 
 module led_path(h, t) {
      cylinder(d=wire_dia, h=h + F);
@@ -146,7 +146,7 @@ module led() {
 
     #translate([0, 0, F])
     rotate([0, 180, 0]) {
-         t = sin(led_path_angle) * led_wire_rad;
+         t = base_height;
          rotate([0, 0, 0])
               translate([0, led_wire_rad, 0])
               rotate([0, 0, -90])
@@ -164,7 +164,7 @@ module led() {
               rotate([0, 0, -90])
               led_path(h=base_height, t=t);
 
-         translate([0, 0, base_height + cos(led_path_angle) * led_wire_rad])
+         translate([0, 0, base_height + base_height - 4])
               sphere(d=wire_dia + 4);
     }
 }
