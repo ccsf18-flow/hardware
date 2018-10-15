@@ -99,10 +99,12 @@ module base() {
         }
     }
 
+    support_standoff = 0.2;
+
     // "support material"
-    color("white") translate([0, 0, base_height + 0.2]) led_pattern() {
-         tube(2*led_wire_rad + 4, 1, h=led_height - 0.2);
-         tube(2*led_wire_rad - 2, 1, h=led_height - 0.2);
+    color("white") translate([0, 0, base_height + support_standoff]) led_pattern() {
+         tube(2*led_wire_rad + 4, 1, h=led_height - support_standoff);
+         tube(2*led_wire_rad - 2, 1, h=led_height - support_standoff);
     }
 }
 
