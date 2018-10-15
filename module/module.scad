@@ -8,9 +8,11 @@ module_width = 6 * tube_dia;
 base_height = 0.5 * 25.4;
 top_height = tube_dia;
 window_height = module_width - (base_height + top_height);
+num_led = 3;
 led_dia = 20;
 led_height = 5;
 led_wire_rad = led_dia / 2 - wire_dia;
+led_unit_size = 0.95 * module_width / num_led;
 window_thickness = 0.125 * 25.4; // 1/8" in mm
 window_instep = window_thickness;
 pump_min_height = 3.5 * 25.4;
@@ -20,7 +22,8 @@ F = 0.01;
 module acrylic_tube(h, fill) {
     tube_wall_thickness = (5/8 - 1/2) / 2 * 25.4;
     color("white", alpha=0.8) difference() {
-        cylinder(d = tube_dia, h=h);
+        outside_dia = tube_dia + (fill ? 2 : 0);
+        cylinder(d = outside_dia, h=h);
         if (!fill) {
             translate([0, 0, -F])
                 cylinder(d=tube_dia - 2 * tube_wall_thickness, h = h + 2 * F);
@@ -36,9 +39,7 @@ module acrylic_pattern(h, fill=false) {
 }
 
 module led_pattern() {
-    num_led = 3;
-    module_frac = 0.95;
-    unit_size = module_frac * module_width / num_led;
+    unit_size = led_unit_size;
     n = num_led - 1;
 
     translate([-unit_size, -unit_size, -led_height + F]) {
@@ -85,13 +86,8 @@ module base() {
                 led();
 
             // Tube through hole
-            color("red") translate([0, 0, base_height - 0.125 * 25.4])
-                acrylic_pattern(0.125 * 25.4 + F, true);
-
-            // Outlet flow path
-            translate([0, 0, base_height - 0.125 * 25.4])
-                rotate([atan2(module_width / 2 + 25.4, -base_height / 2), 0, 27])
-                cylinder(d = tube_dia - 6, h=100);
+            color("red") translate([0, 0, -F])
+                acrylic_pattern(base_height + 2 * F, true);
 
             // Wall insteps
             color("lightgreen") translate([0, 0, base_height - 0.125 * 25.4])
