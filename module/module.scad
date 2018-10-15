@@ -14,13 +14,14 @@ led_wire_rad = led_dia / 2 - wire_dia;
 window_thickness = 0.125 * 25.4; // 1/8" in mm
 window_instep = window_thickness;
 pump_min_height = 3.5 * 25.4;
-wire_dia = 3;
+wire_dia = 5;
 F = 0.01;
 
 module acrylic_tube(h, fill) {
     tube_wall_thickness = (5/8 - 1/2) / 2 * 25.4;
     color("white", alpha=0.8) difference() {
-        cylinder(d = tube_dia, h=h);
+        dd = tube_dia + (fill ? 2 : 0);
+        cylinder(d = dd, h=h);
         if (!fill) {
             translate([0, 0, -F])
                 cylinder(d=tube_dia - 2 * tube_wall_thickness, h = h + 2 * F);
@@ -72,10 +73,20 @@ module base() {
 
             corner_offset = -module_width * (0.5 + -foot_percent / 2);
             // Temporarily shorten the legs for faster prototyping
-            leg_height = 30;
+            // leg_height = 30;
+            leg_height = pump_min_height;
             translate([corner_offset, corner_offset,  base_height + -leg_height / 2])
             rect_array(module_width * (1 - foot_percent), module_width * (1 - foot_percent), 2, 2)
                 cube([module_width * foot_percent, module_width * foot_percent, leg_height], center=true);
+
+            // Small walls to contain resin flow
+            retaining_wall_height = 5;
+            translate([0, 0, -retaining_wall_height / 2])
+            difference() {
+                cube([module_width, module_width, retaining_wall_height], center=true);
+                translate([0, 0, -F])
+                cube([module_width * 0.95, module_width * 0.95, retaining_wall_height + 3 * F], center=true);
+            }
         }
 
         union() {
@@ -85,13 +96,13 @@ module base() {
                 led();
 
             // Tube through hole
-            color("red") translate([0, 0, base_height - 0.125 * 25.4])
-                acrylic_pattern(0.125 * 25.4 + F, true);
+            color("red") translate([0, 0, -F])
+                acrylic_pattern(base_height + 2 * F, true);
 
             // Outlet flow path
-            translate([0, 0, base_height - 0.125 * 25.4])
-                rotate([atan2(module_width / 2 + 25.4, -base_height / 2), 0, 27])
-                cylinder(d = tube_dia - 6, h=100);
+            // translate([0, 0, base_height - 0.125 * 25.4])
+            //     rotate([atan2(module_width / 2 + 25.4, -base_height / 2), 0, 27])
+            //     cylinder(d = tube_dia - 6, h=100);
 
             // Wall insteps
             color("lightgreen") translate([0, 0, base_height - 0.125 * 25.4])
@@ -122,6 +133,7 @@ module top() {
 module windows() {
     window_size = module_width - 2 * window_instep;
     echo("Window size: ", window_size / 25.4);
+    echo("Window height: ", window_height / 25.4);
     color("white", alpha=0.5) for (i = [0:3]) {
         rotate([0, 0, 90 * i])
             translate([(module_width - window_thickness) / 2 - window_instep, 0, window_height / 2])
