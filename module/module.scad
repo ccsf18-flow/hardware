@@ -16,7 +16,7 @@ led_unit_size = 0.95 * module_width / num_led;
 window_thickness = 0.125 * 25.4; // 1/8" in mm
 window_instep = window_thickness;
 pump_min_height = 3.5 * 25.4;
-wire_dia = 3;
+wire_dia = 5;
 F = 0.01;
 
 module acrylic_tube(h, fill) {
@@ -73,10 +73,20 @@ module base() {
 
             corner_offset = -module_width * (0.5 + -foot_percent / 2);
             // Temporarily shorten the legs for faster prototyping
-            leg_height = 30;
+            // leg_height = 30;
+            leg_height = pump_min_height;
             translate([corner_offset, corner_offset,  base_height + -leg_height / 2])
             rect_array(module_width * (1 - foot_percent), module_width * (1 - foot_percent), 2, 2)
                 cube([module_width * foot_percent, module_width * foot_percent, leg_height], center=true);
+
+            // Small walls to contain resin flow
+            retaining_wall_height = 5;
+            translate([0, 0, -retaining_wall_height / 2])
+            difference() {
+                cube([module_width, module_width, retaining_wall_height], center=true);
+                translate([0, 0, -F])
+                cube([module_width * 0.95, module_width * 0.95, retaining_wall_height + 3 * F], center=true);
+            }
         }
 
         union() {
@@ -120,6 +130,7 @@ module top() {
 module windows() {
     window_size = module_width - 2 * window_instep;
     echo("Window size: ", window_size / 25.4);
+    echo("Window height: ", window_height / 25.4);
     color("white", alpha=0.5) for (i = [0:3]) {
         rotate([0, 0, 90 * i])
             translate([(module_width - window_thickness) / 2 - window_instep, 0, window_height / 2])
