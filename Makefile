@@ -1,5 +1,6 @@
 STLS = \
   tools/sander.stl \
+  tools/clamp.stl \
   module/bottom.stl \
   module/top.stl \
   module/led_holder_test.stl \
