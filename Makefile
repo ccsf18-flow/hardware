@@ -3,6 +3,7 @@ STLS = \
   tools/clamp.stl \
   module/bottom.stl \
   module/top.stl \
+  module/hatch.stl \
   module/led_holder_test.stl \
   water_block/base.stl \
   water_block/top.stl \
