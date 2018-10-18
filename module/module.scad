@@ -13,6 +13,8 @@ led_dia = 20;
 led_height = 5;
 led_wire_rad = led_dia / 2 - wire_dia;
 led_unit_size = 0.95 * module_width / num_led;
+drain_hole_offset = module_width * 0.3;
+drain_hole_dia = 10;
 window_thickness = 0.125 * 25.4; // 1/8" in mm
 window_instep = window_thickness;
 pump_min_height = 3.5 * 25.4;
@@ -22,7 +24,7 @@ F = 0.01;
 module acrylic_tube(h, fill) {
     tube_wall_thickness = (5/8 - 1/2) / 2 * 25.4;
     color("white", alpha=0.8) difference() {
-        outside_dia = tube_dia + (fill ? 2 : 0);
+        outside_dia = tube_dia + (fill ? 1 : 0);
         cylinder(d = outside_dia, h=h);
         if (!fill) {
             translate([0, 0, -F])
@@ -65,6 +67,7 @@ module tube(od, wall, h) {
 
 module base() {
     foot_percent = 0.2;
+    retaining_wall_height = 5;
     difference() {
         union () {
             // Main body geometry
@@ -80,13 +83,17 @@ module base() {
                 cube([module_width * foot_percent, module_width * foot_percent, leg_height], center=true);
 
             // Small walls to contain resin flow
-            retaining_wall_height = 5;
             translate([0, 0, -retaining_wall_height / 2])
             difference() {
                 cube([module_width, module_width, retaining_wall_height], center=true);
                 translate([0, 0, -F])
                 cube([module_width * 0.95, module_width * 0.95, retaining_wall_height + 3 * F], center=true);
             }
+
+            // Walls for the drainage holes
+            translate([-drain_hole_offset / 2, -drain_hole_offset / 2, -retaining_wall_height])
+                rect_array(drain_hole_offset, drain_hole_offset, 2, 2)
+                cylinder(d=drain_hole_dia + 2, h=retaining_wall_height);
         }
 
         union() {
@@ -102,6 +109,11 @@ module base() {
             // Wall insteps
             color("lightgreen") translate([0, 0, base_height - 0.125 * 25.4])
             windows();
+
+            // Drainage holes
+            translate([-drain_hole_offset / 2, -drain_hole_offset / 2, -retaining_wall_height - F])
+                rect_array(drain_hole_offset, drain_hole_offset, 2, 2)
+                cylinder(d=drain_hole_dia, h=retaining_wall_height + base_height + 2 * F);
         }
     }
 
