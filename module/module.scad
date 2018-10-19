@@ -15,7 +15,9 @@ function gear_center_dist(x, y) = (x + y) * circular_pitch / 360;
 tube_dia = (5/8) * 25.4; // 1 inch in mm
 module_width = 6 * tube_dia;
 base_height = 0.5 * 25.4;
-top_height = 0.5 * 25.4;
+top_height = 0.25 * 25.4;
+retaining_wall_height = 5;
+wall_thickness = 2.5;
 window_height = module_width - (base_height + top_height);
 num_led = 3;
 led_dia = 20;
@@ -83,7 +85,6 @@ module tube(od, wall, h) {
 
 module base() {
     foot_percent = 0.2;
-    retaining_wall_height = 5;
     difference() {
         union () {
             // Main body geometry
@@ -101,15 +102,15 @@ module base() {
             // Small walls to contain resin flow
             translate([0, 0, -retaining_wall_height / 2])
             difference() {
+                id = module_width - 2 * wall_thickness;
                 cube([module_width, module_width, retaining_wall_height], center=true);
-                translate([0, 0, -F])
-                cube([module_width * 0.95, module_width * 0.95, retaining_wall_height + 3 * F], center=true);
+                translate([0, 0, -F]) cube([id, id, retaining_wall_height + 3 * F], center=true);
             }
 
             // Walls for the drainage holes
             translate([-drain_hole_offset / 2, -drain_hole_offset / 2, -retaining_wall_height])
                 rect_array(drain_hole_offset, drain_hole_offset, 2, 2)
-                cylinder(d=drain_hole_dia + 2, h=retaining_wall_height);
+                cylinder(d=drain_hole_dia + wall_thickness, h=retaining_wall_height);
         }
 
         union() {
@@ -142,8 +143,6 @@ module base() {
     }
 }
 
-wall_thickness = 5;
-
 module hatch() {
      hatch_width = module_width / 2 - wall_thickness - 2 * C;
      rotate([0, 90, 0])
@@ -174,65 +173,68 @@ module valve_body() {
      difference() {
           union() {
                // Main body volume
-               translate([0, 0, valve_body_height])
+               translate([0, 0, valve_body_height / 2])
                     cube([module_width * 0.5,
                           module_width * 0.5,
-                          2 * valve_body_height], center=true);
-               // Guides for the front face
-               translate([0, module_width * 0.375, valve_body_height * 0.75])
-                    cube([module_width,
-                          module_width * 0.25,
-                          1.5 * valve_body_height], center=true);
-
-               // Servo support
-               translate([module_width / 4 - 10, module_width / 4 - 15, valve_body_height * 2])
-                    cube([10, 10, 20]);
+                          valve_body_height], center=true);
 
                // Anchor points for the gate
                for (i = [0:1]) {
-                    translate([(i - 0.5) * module_width / 2, module_width / 4, valve_body_height]) {
-                         cube([wall_thickness, 2 * shaft_dia, valve_body_height + 2 * hatch_height], center=true);
+                    translate([(i - 0.5) * module_width / 2, module_width / 4, valve_body_height / 2 + shaft_dia]) {
+                         cube([wall_thickness, 2 * shaft_dia, 1.5 * hatch_height], center=true);
                     }
                }
           }
 
           union() {
                // Resevoir
-               translate([0, 0, valve_body_height * 1.5])
-                    cube([module_width * 0.5 - wall_thickness,
-                          module_width * 0.5 - wall_thickness,
+               translate([0, 0, valve_body_height / 2])
+                    cube([module_width * 0.5 - 2 * wall_thickness,
+                          module_width * 0.5 - 2 * wall_thickness,
                           valve_body_height + F], center=true);
 
                // Front side dump path
-               translate([0, module_width * 0.375, valve_body_height])
-                    cube([module_width -wall_thickness,
-                          module_width * 0.25 - wall_thickness,
-                          2 * valve_body_height + F], center=true);
+               translate([0, module_width * 0.375, valve_body_height / 2])
+                    cube([module_width - (2 * wall_thickness),
+                          module_width * 0.25 - (2 * wall_thickness),
+                          valve_body_height + F], center=true);
 
-               translate([0, module_width / 4, 2 * valve_body_height - (hatch_height) / 2])
-                    cube([module_width / 2 - wall_thickness, shaft_dia + F, hatch_height + F], center=true);
+               translate([0, module_width / 4, valve_body_height - (hatch_height) / 2])
+                    cube([module_width / 2 - (2 * wall_thickness), shaft_dia + F, hatch_height + F], center=true);
 
                // Servo cut
-               servo_angle = 34;
-               translate([module_width / 4 + gear_thickness + wall_thickness / 2,
-                          module_width / 4 - gear_center_dist(hatch_gear_teeth, servo_gear_teeth) * cos(servo_angle),
-                          2 * valve_body_height + shaft_dia + gear_center_dist(hatch_gear_teeth, servo_gear_teeth) * sin(servo_angle)])
-               {
-                    rotate([180, -90, 0])
-                         #g90s();
-                    translate([-12, 0, -6.2])
-                    #cube([10, 10, 12.4]);
-               }
-
                // Shaft through hole
-               translate([0, module_width / 4, valve_body_height * 2 + shaft_dia])
+               translate([0, module_width / 4, valve_body_height + shaft_dia])
                     rotate([0, 90, 0])
                     cylinder(d=shaft_dia + 2 * C, h = module_width, center=true);
-               // Cutout to make the shaft insertable
 
-               translate([module_width / 4, module_width / 4, valve_body_height * 2 + -2 * shaft_dia + 30])
-                    cube([wall_thickness + 2 * F, shaft_dia + 2 * C, 30], center=true);
+               // Cutout to make the shaft insertable
+               translate([module_width / 4, module_width / 4, valve_body_height + -2 * shaft_dia + 30])
+                    cube([2 * (wall_thickness + F), shaft_dia + 2 * C, 30], center=true);
           }
+     }
+
+
+     // Servo support
+     difference() {
+          translate([module_width / 4 - 5, module_width / 4 - 10, valve_body_height])
+               hull() {
+               translate([4, 0, -valve_body_height]) cylinder(d=5, valve_body_height);
+               cylinder(d=10, h=20);
+               translate([-5, 0, 0]) cube([5, 5, 20]);
+          }
+
+          servo_angle = 34;
+          translate([module_width / 4 + gear_thickness + wall_thickness,
+                     module_width / 4 - gear_center_dist(hatch_gear_teeth, servo_gear_teeth) * cos(servo_angle),
+                     valve_body_height + shaft_dia + gear_center_dist(hatch_gear_teeth, servo_gear_teeth) * sin(servo_angle)])
+          {
+               rotate([180, -90, 0])
+                    #g90s();
+               translate([-12, 0, -6.2])
+               #cube([10, 10, 12.4]);
+          }
+
      }
 }
 
@@ -260,10 +262,9 @@ module top() {
          for (i = [0:1]) {
               translate([(i - 0.5) * (led_dia - 4),
                          0,
-                         top_height + valve_body_height + F + 2]) rotate([0, 180, 0]) {
-                 led();
-                 translate([0, 0, led_height / 2 + 2])
-                      cube([6, 8, led_height + 4], center=true);
+                         top_height + F]) rotate([0, 180, 0]) {
+                 cube([6, 8, 10], center=true);
+                 cylinder(d=11, h=2);
              }
          }
 
@@ -277,6 +278,27 @@ module top() {
                     translate([module_width / 2 - 3 * window_instep, 0, 0])
                     water_path();
          }
+    }
+
+    module separator() {
+         hull() {
+              od = (module_width - wall_thickness) / 2;
+              id = (module_width - wall_thickness) / 2 - module_width / 4 + wall_thickness / 2;
+              translate([od, od, 0]) cube([wall_thickness, wall_thickness, retaining_wall_height], center=true);
+              translate([id, id, 0]) cube([wall_thickness, wall_thickness, retaining_wall_height], center=true);
+         }
+    }
+
+    // Flow guides
+    translate([0, 0, top_height + retaining_wall_height / 2]) {
+         // outside walls
+         difference() {
+              cube([module_width, module_width, retaining_wall_height], center=true);
+              cube([module_width - 2 * wall_thickness, module_width - 2 * wall_thickness, retaining_wall_height + F], center=true);
+         }
+         //Separators for the front side
+         separator();
+         mirror([1, 0, 0]) separator();
     }
 }
 
@@ -344,7 +366,7 @@ base();
 translate([0, 0, window_height + base_height])
    top();
 
-translate([0, module_width * 0.25, base_height + top_height + window_height + 2 * valve_body_height + shaft_dia])
+translate([0, module_width * 0.25, base_height + top_height + window_height + valve_body_height + shaft_dia])
 rotate([180, 0, 0])
      color("orange") hatch();
 }
