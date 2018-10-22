@@ -1,6 +1,7 @@
 STLS = \
   tools/sander.stl \
   tools/clamp.stl \
+  tools/led_soldering_jig.stl \
   module/bottom.stl \
   module/top.stl \
   module/hatch.stl \
@@ -34,6 +35,9 @@ module/top.scad :: module/module.scad
 module/bottom.scad :: module/module.scad
 	touch $@
 
+module/hatch.scad :: module/module.scad
+	touch $@
+
 tube_parts/hatch_body.scad :: tube_parts/hatch.scad
 	touch $@
 
@@ -55,6 +59,8 @@ include slice.mk
 $(call GCODE_NAME_FOR_STL,tube_parts/hatch_gate.stl): PROFILE=coarse1_support
 $(call GCODE_NAME_FOR_STL,tube_parts/hatch_body.stl): PROFILE=coarse1_internal_support
 $(call GCODE_NAME_FOR_STL,module/led_holder_test.stl): PROFILE=coarse5
+$(call GCODE_NAME_FOR_STL,module/top.stl): PROFILE=coarse1_internal_support
+$(call GCODE_NAME_FOR_STL,module/hatch.stl): PROFILE=coarse1_internal_support
 
 .PHONY: all stl
 
