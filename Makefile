@@ -2,6 +2,7 @@ STLS = \
   tools/sander.stl \
   tools/clamp.stl \
   tools/led_soldering_jig.stl \
+  tools/phone_stand.stl \
   module/bottom.stl \
   module/top.stl \
   module/hatch.stl \

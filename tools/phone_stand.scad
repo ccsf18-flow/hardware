@@ -1,7 +1,7 @@
 base_height = 21;
-width = 9;
+width = 11;
 base_thickness = 20;
-notch_thickness = 6;
+notch_thickness = 7.5;
 F = 0.01;
 
 difference() {
