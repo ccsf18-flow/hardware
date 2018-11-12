@@ -9,6 +9,7 @@ STLS = \
   module/led_holder_test.stl \
   water_block/base.stl \
   water_block/top.stl \
+  tube_parts/splitter.stl \
   tube_parts/hatch_gate.stl \
   tube_parts/hatch_servo_gear.stl \
   tube_parts/hatch_body.stl
@@ -62,6 +63,7 @@ $(call GCODE_NAME_FOR_STL,tube_parts/hatch_body.stl): PROFILE=coarse1_internal_s
 $(call GCODE_NAME_FOR_STL,module/led_holder_test.stl): PROFILE=coarse5
 $(call GCODE_NAME_FOR_STL,module/top.stl): PROFILE=coarse1_internal_support
 $(call GCODE_NAME_FOR_STL,module/hatch.stl): PROFILE=coarse1_internal_support
+$(call GCODE_NAME_FOR_STL,tube_parts/splitter.stl): PROFILE=coarse1_support
 
 .PHONY: all stl
 
