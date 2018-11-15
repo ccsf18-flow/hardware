@@ -335,7 +335,7 @@ module top_inset() {
                      2 * valve_body_height + F], center=true);
           }
 
-          # union() {
+          union() {
                translate([0, 0, - F])
                     cube([inset_width - 2 * wall_thickness,
                           inset_width - 2 * wall_thickness,
@@ -347,6 +347,9 @@ module top_inset() {
                          rotate([90, 0, 0])
                          translate([0, 0, -1])
                          cylinder(d=6, h=10);
+
+               translate([inset_width / 2 + 6, inset_width / 2 + 6, -F])
+                    cube([inset_width, inset_width, 2 * valve_body_height + 8 * F], center=true);
           }
      }
 }
