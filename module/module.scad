@@ -29,7 +29,7 @@ drain_hole_dia = 10;
 window_thickness = 0.125 * 25.4; // 1/8" in mm
 window_instep = window_thickness;
 pump_min_height = 3.5 * 25.4;
-valve_body_height = 20;
+valve_body_height = 15;
 shaft_dia = 5;
 hatch_height = valve_body_height;
 gear_thickness = 5;
@@ -37,7 +37,7 @@ hatch_gear_teeth = 24;
 servo_gear_teeth = 8;
 wire_dia = 5;
 F = 0.01;
-C = 0.1;
+C = 0.2;
 
 module acrylic_tube(h, fill) {
     tube_wall_thickness = (5/8 - 1/2) / 2 * 25.4;
@@ -244,6 +244,28 @@ module water_path() {
      #cube([0.125 * 25.4, path_width, 30], center=true);
 }
 
+module upper_walls() {
+     upper_wall_height = valve_body_height + 30;
+     translate([0, 0, upper_wall_height / 2]) difference() {
+          // The man body volume
+          cube([module_width, module_width, upper_wall_height], center=true);
+
+          // All the cutouts
+          union() {
+               // Central hole for all the internal details
+               cube([module_width - 2 * wall_thickness, module_width - 2 * wall_thickness, upper_wall_height + 2 * F], center=true);
+
+               // LED holes
+               for (i = [-1:1]) {
+                    translate([i * module_width / 3, module_width / 2 - wall_thickness / 2, upper_wall_height / 2 - wall_thickness - led_dia / 2])
+                         rotate([-90, 0, 0])
+                         rotate([0, 0, 180])
+                         led();
+               }
+          }
+     }
+}
+
 module top() {
     difference() {
          union() {
@@ -300,6 +322,8 @@ module top() {
          separator();
          mirror([1, 0, 0]) separator();
     }
+
+    upper_walls();
 }
 
 module windows() {
