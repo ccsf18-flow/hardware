@@ -326,6 +326,31 @@ module top() {
     upper_walls();
 }
 
+module top_inset() {
+     inset_width = module_width * 0.5 - 2 * wall_thickness;
+     translate([0, 0, valve_body_height]) difference() {
+          union() {
+               cube([inset_width,
+                     inset_width,
+                     2 * valve_body_height + F], center=true);
+          }
+
+          # union() {
+               translate([0, 0, - F])
+                    cube([inset_width - 2 * wall_thickness,
+                          inset_width - 2 * wall_thickness,
+                          2 * valve_body_height + 8 * F], center=true);
+
+               for (i = [0:3])
+                    rotate([0, 0, 90 * i])
+                         translate([0, inset_width / 2, 10])
+                         rotate([90, 0, 0])
+                         translate([0, 0, -1])
+                         cylinder(d=6, h=10);
+          }
+     }
+}
+
 module windows() {
     window_size = module_width - 2 * window_instep;
     echo("Window size: ", window_size / 25.4);
@@ -387,8 +412,10 @@ base();
 // translate([0, 0, base_height])
 //     windows();
 
-translate([0, 0, window_height + base_height])
-   top();
+translate([0, 0, window_height + base_height]) {
+     top();
+     top_inset();
+}
 
 translate([0, module_width * 0.25, base_height + top_height + window_height + valve_body_height + shaft_dia])
 rotate([180, 0, 0])

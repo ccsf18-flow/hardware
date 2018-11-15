@@ -5,6 +5,7 @@ STLS = \
   tools/phone_stand.stl \
   module/bottom.stl \
   module/top.stl \
+  module/top_inset.stl \
   module/hatch.stl \
   module/led_holder_test.stl \
   water_block/base.stl \
@@ -36,6 +37,9 @@ module/top.scad :: module/module.scad
 
 module/bottom.scad :: module/module.scad
 	touch $@
+
+module/top_inset.scad :: module/module.scad
+  touch $@
 
 module/hatch.scad :: module/module.scad
 	touch $@
