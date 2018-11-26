@@ -2,6 +2,7 @@ include <pipe.scad>
 
 tube_dia = (5 / 8) * 25.4;
 up_tube_height = 30;
+up_tube_angle = 20;
 body_width = 10;
 
 $fs = 0.2;
@@ -18,19 +19,20 @@ module acrylic_tube(h, fill) {
      }
 }
 
-translate([body_width, 0, 0])
+translate([body_width * 0.15, 0, 0])
   rotate([0, 90, 0]) large_side();
-translate([-body_width, 0, 0])
-  rotate([0, 90, 180]) large_side();
+// translate([-body_width, 0, 0])
+//   rotate([0, 90, 180]) large_side();
 
 difference() {
      union() {
           // cylinder(h=up_tube_height, d=tube_dia + 5);
-          cube([large_max_od, large_max_od, up_tube_height], center=true);
+          cylinder(d=large_max_od, h=up_tube_height, center=true);
+          // cube([large_max_od, large_max_od, up_tube_height], center=true);
 
           for (i = [0:3]) {
                rotate([0, 0, 45 + 90 * i])
-                    rotate([0, 45, 0])
+                    rotate([0, up_tube_angle, 0])
                     translate([0, 0, large_max_od]) {
                     translate([0, 0, -10])
                          cylinder(d = small_max_od, h = 10);
@@ -42,11 +44,11 @@ difference() {
      union() {
           for (i = [0:3]) {
                rotate([0, 0, 45 + 90 * i])
-                    rotate([0, 45, 0]) {
+                    rotate([0, up_tube_angle, 0]) {
                     cylinder(d=small_id, h = 30);
                }
           }
-          rotate([0, 90, 0]) cylinder(h=large_max_od + 0.5, d=large_id, center=true);
+          rotate([0, 90, 0]) cylinder(h=large_max_od + 0.5, d2=large_id * 1.1, d1=large_id * 0.6, center=true);
           // acrylic_tube(up_tube_height + 0.2, true);
      }
 }

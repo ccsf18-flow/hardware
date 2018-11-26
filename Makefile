@@ -39,7 +39,7 @@ module/bottom.scad :: module/module.scad
 	touch $@
 
 module/top_inset.scad :: module/module.scad
-  touch $@
+	touch $@
 
 module/hatch.scad :: module/module.scad
 	touch $@
