@@ -29,8 +29,7 @@ difference() {
             rotate([0, 90, 0]) large_side();
           // cylinder(h=up_tube_height, d=tube_dia + 5);
           hull() {
-              translate([0, 0, -up_tube_height / 2])
-              cylinder(d=large_max_od, h=1, center=true);
+              sphere(d=large_max_od, h=1, center=true);
 
               cylinder(d=large_max_od, h=1, center=true);
 
@@ -62,9 +61,10 @@ difference() {
                     cylinder(d=small_id, h = 30);
                }
           }
-          rotate([0, 90, 0]) cylinder(h=large_max_od + 0.5, d2=large_id * 1.1, d1=large_id * 0.2, center=true);
-          rotate([0, 90, 90]) cylinder(h=large_max_od / 2, d=large_id * 0.4);
-          rotate([0, 90, -90]) cylinder(h=large_max_od / 2, d=large_id * 0.4);
+
+         translate([large_max_od / 4, 0, 0])
+          rotate([0, 90, 0]) cylinder(h=large_max_od / 2, d2=large_id * 1.1, d1=large_id * 0.3, center=true);
+          rotate([0, 90, 90]) cylinder(h=large_max_od, d=large_id * 0.3, center=true);
           // acrylic_tube(up_tube_height + 0.2, true);
      }
 }

@@ -15,7 +15,7 @@ function gear_center_dist(x, y) = (x + y) * circular_pitch / 360;
 tube_dia = (5/8) * 25.4; // 1 inch in mm
 module_width = 6 * tube_dia;
 base_height = 0.5 * 25.4;
-top_height = 0.25 * 25.4;
+top_height = 0.128 * 25.4;
 retaining_wall_height = 5;
 wall_thickness = 2.5;
 window_height = module_width - (base_height + top_height);
@@ -143,32 +143,6 @@ module base() {
     }
 }
 
-module hatch() {
-     hatch_width = module_width / 2 - wall_thickness - 2 * C;
-     rotate([0, 90, 0])
-     translate([0, 0, -hatch_width / 2])
-     hull() {
-          cylinder(d=shaft_dia, h=module_width / 2 - wall_thickness);
-          translate([0, -hatch_height - (shaft_dia / 2), 0])
-               cylinder(d=shaft_dia, h=module_width / 2 - wall_thickness);
-     }
-
-     rotate([0, 90, 0])
-     translate([0, 0, -hatch_width / 2 - wall_thickness])
-     cylinder(d=shaft_dia, h = module_width / 2 + wall_thickness + gear_thickness);
-
-     rotate([0, 90, 0])
-     translate([0, 0, hatch_width / 2 + gear_thickness + 2 * C])
-     color("lightgreen") gear(number_of_teeth=hatch_gear_teeth,
-          circular_pitch=circular_pitch,
-          gear_thickness=gear_thickness,
-          rim_thickness=gear_thickness,
-          hub_thickness=gear_thickness,
-          bore_diameter=shaft_dia-F,
-          clearance=C,
-          $fs=0.1);
-}
-
 module valve_body() {
      difference() {
           union() {
@@ -244,51 +218,16 @@ module water_path() {
      #cube([0.125 * 25.4, path_width, 30], center=true);
 }
 
-module upper_walls() {
-     upper_wall_height = valve_body_height + 30;
-     translate([0, 0, upper_wall_height / 2]) difference() {
-          // The man body volume
-          cube([module_width, module_width, upper_wall_height], center=true);
-
-          // All the cutouts
-          union() {
-               // Central hole for all the internal details
-               cube([module_width - 2 * wall_thickness, module_width - 2 * wall_thickness, upper_wall_height + 2 * F], center=true);
-
-               // LED holes
-               for (i = [-1:1]) {
-                    translate([i * module_width / 3, module_width / 2 - wall_thickness / 2, upper_wall_height / 2 - wall_thickness - led_dia / 2])
-                         rotate([-90, 0, 0])
-                         rotate([0, 0, 180])
-                         led();
-               }
-          }
-     }
-}
-
 module top() {
     difference() {
          union() {
-              translate([0, 0, top_height / 2])
+              translate([0, 0, top_height / 2 - F])
                    cube([module_width, module_width, top_height], center=true);
-
-              translate([0, 0, top_height])
-                   valve_body();
          }
 
          // Through hole for the water inlet
          translate([0, 0, -F])
               acrylic_pattern(top_height + valve_body_height + 2*F, true);
-
-         // LEDs for lighting the water tube
-         for (i = [0:1]) {
-              translate([(i - 0.5) * (led_dia - 4),
-                         0,
-                         top_height + F]) rotate([0, 180, 0]) {
-                 cube([6, 8, 10], center=true);
-                 cylinder(d=11, h=2);
-             }
-         }
 
          // Seat for the walls
          color("green") translate([0, 0, -window_height + 0.125 * 25.4])
@@ -297,7 +236,7 @@ module top() {
          // Water outlet ports
          for (i = [0:3]) {
               rotate([0, 0, 90 * i])
-                    translate([module_width / 2 - 3 * window_instep, 0, 0])
+                    translate([module_width / 2 - 2 * window_instep, 0, 0])
                     water_path();
          }
     }
@@ -318,40 +257,7 @@ module top() {
               cube([module_width, module_width, retaining_wall_height], center=true);
               cube([module_width - 2 * wall_thickness, module_width - 2 * wall_thickness, retaining_wall_height + F], center=true);
          }
-         //Separators for the front side
-         separator();
-         mirror([1, 0, 0]) separator();
     }
-
-    upper_walls();
-}
-
-module top_inset() {
-     inset_width = module_width * 0.5 - 2 * wall_thickness;
-     translate([0, 0, valve_body_height]) difference() {
-          union() {
-               cube([inset_width,
-                     inset_width,
-                     2 * valve_body_height + F], center=true);
-          }
-
-          union() {
-               translate([0, 0, - F])
-                    cube([inset_width - 2 * wall_thickness,
-                          inset_width - 2 * wall_thickness,
-                          2 * valve_body_height + 8 * F], center=true);
-
-               for (i = [0:3])
-                    rotate([0, 0, 90 * i])
-                         translate([0, inset_width / 2, 10])
-                         rotate([90, 0, 0])
-                         translate([0, 0, -1])
-                         cylinder(d=6, h=10);
-
-               translate([inset_width / 2 + 6, inset_width / 2 + 6, -F])
-                    cube([inset_width, inset_width, 2 * valve_body_height + 8 * F], center=true);
-          }
-     }
 }
 
 module windows() {
@@ -417,11 +323,6 @@ base();
 
 translate([0, 0, window_height + base_height]) {
      top();
-     top_inset();
 }
-
-translate([0, module_width * 0.25, base_height + top_height + window_height + valve_body_height + shaft_dia])
-rotate([180, 0, 0])
-     color("orange") hatch();
 }
 
