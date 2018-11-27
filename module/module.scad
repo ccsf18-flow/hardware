@@ -218,11 +218,59 @@ module water_path() {
      #cube([0.125 * 25.4, path_width, 30], center=true);
 }
 
+module sprayer() {
+     sprayer_width = 10;
+     difference() {
+          hull() {
+               translate([0, 0, 0.5])
+                    cube([sprayer_width, sprayer_width, 1], center=true);
+
+               translate([sprayer_width / 2 , 0, sprayer_width / 2 ])
+                    rotate([90, 0, 0])
+                    cylinder(d=sprayer_width / 4, h=sprayer_width, center=true);
+
+               translate([sprayer_width, 0, sprayer_width / 2 ])
+                    rotate([90, 0, 0])
+                    cylinder(d=sprayer_width / 4, h=sprayer_width, center=true);
+               translate([sprayer_width, 0, 0.5])
+                    cube([1, sprayer_width, 1], center=true);
+          }
+
+          translate([sprayer_width, 0, sprayer_width / 4])
+               rotate([0, 6, 0]) {
+
+               translate([-1.5 + F, 0, 0])
+                    rotate([0, -90, 0])
+                    cylinder(h=100,d=6);
+
+
+               translate([0, (sprayer_width - wall_thickness) / 3, 0])
+                    cube([3, (sprayer_width - wall_thickness) / 2, 1], center=true);
+
+               translate([0, -(sprayer_width - wall_thickness) / 3, 0])
+                    cube([3, (sprayer_width - wall_thickness) / 2, 1], center=true);
+
+               translate([-0.75, 0, 0])
+                    cube([1.5, (sprayer_width - wall_thickness) / 2, 1], center=true);
+          }
+     }
+}
+
+// !sprayer();
+
 module top() {
     difference() {
          union() {
-              translate([0, 0, top_height / 2 - F])
+              translate([0, 0, top_height / 2])
                    cube([module_width, module_width, top_height], center=true);
+
+              translate([0, 0, top_height])
+              for (i = [0:3]) {
+                   rotate([0, 0, 45 + 90 * i])
+                        translate([module_width / 6, 0, 0])
+                        // rotate([0, 0, 90])
+                        sprayer();
+              }
          }
 
          // Through hole for the water inlet
@@ -251,7 +299,7 @@ module top() {
     }
 
     // Flow guides
-    translate([0, 0, top_height + retaining_wall_height / 2]) {
+    translate([0, 0, top_height + retaining_wall_height / 2 - F]) {
          // outside walls
          difference() {
               cube([module_width, module_width, retaining_wall_height], center=true);
